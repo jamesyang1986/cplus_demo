@@ -4,8 +4,8 @@
 #include <queue>
 #include <algorithm>
 
-#include "Student.h"
-#include "LinkedList.h"
+#include "model/Student.h"
+#include "ds/LinkedList.h"
 
 void testDs();
 

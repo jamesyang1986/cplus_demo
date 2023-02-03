@@ -3,4 +3,4 @@ project(cplus_demo)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(cplus_demo main.cpp Student.cpp Student.h LinkedList.cpp LinkedList.h)
+add_executable(cplus_demo main.cpp model/Student.cpp model/Student.h ds/LinkedList.cpp ds/LinkedList.h ds/Dict.cpp ds/Dict.h)
