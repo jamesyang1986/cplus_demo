@@ -20,7 +20,11 @@ public:
 
     void add2Head(int val);
 
-    ListNode *getNode(int index);
+    ListNode *findNode(int index);
+
+    ListNode *searchKey(int key);
+
+    void removeNode(int val);
 
     int length() {
         return this->len;

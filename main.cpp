@@ -72,8 +72,20 @@ int main() {
     }
 
     for (int i = 0; i < list.length(); i++) {
-        ListNode *target = list.getNode(i);
+        ListNode *target = list.findNode(i);
         std::cout << target->value << std::endl;
+    }
+
+    ListNode *target = list.searchKey(8);
+    std::cout << target->value << endl;
+
+
+    list.removeNode(8);
+    target = list.searchKey(8);
+    if (target == NULL) {
+        std::cout << "remove node success!" << endl;
+    } else {
+        std::cout << "fail to remove the node." << endl;
     }
 
     return 0;
