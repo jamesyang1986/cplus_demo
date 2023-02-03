@@ -13,7 +13,7 @@ public:
 
     int getAge();
 
-    int getsalary();
+    int getSalary();
 
     Student() {
         this->age = 0;

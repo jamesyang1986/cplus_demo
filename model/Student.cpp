@@ -8,7 +8,7 @@ int Student::getAge() {
     return age;
 }
 
-int Student::getsalary() {
+int Student::getSalary() {
     return this->salary;
 }
 

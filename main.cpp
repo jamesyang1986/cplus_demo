@@ -53,7 +53,7 @@ void testAlg() {
 
 void testClass() {
     Student stu(10, 10, 1);
-    cout << stu.getsalary() << endl;
+    cout << stu.getSalary() << endl;
 }
 
 void testList() {
