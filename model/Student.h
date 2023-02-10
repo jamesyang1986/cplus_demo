@@ -9,6 +9,7 @@
 class Student {
 public:
     int age;
+
     int height;
 
     int getAge();
