@@ -34,7 +34,7 @@ private:
 
     void setNoBlock(int listen_sock) const;
 
-    void sendResponse(int fd, const char *response) const;
+    void sendResponse(int fd,  char *response) const;
 };
 
 

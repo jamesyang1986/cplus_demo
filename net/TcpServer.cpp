@@ -17,6 +17,7 @@
 using namespace std;
 
 TcpServer::TcpServer(int listenPort) {
+    this->port = listenPort;
     this->listen_sock = createSock();
     epollInit(this->listen_sock);
 }
@@ -104,12 +105,13 @@ void TcpServer::start() {
                             memset(header, '\0', sizeof(header));
                             int readBytes = read(fd, header, sizeof(header));
                             if (readBytes < 4) {
-                                throw "read packet header error.";
+                                continue;
                             }
 
                             int magic = ((header[0] & 0xFF) << 8) | (header[1] & 0xFF);
                             if (magic != MAGIC_NUM) {
                                 std::cout << "wrong magic num:" + magic << endl;
+                                close(listen_sock);
                             }
 
                             int len = ((header[2] & 0xFF) << 8) | (header[3] & 0xFF);
@@ -121,6 +123,8 @@ void TcpServer::start() {
                             char *response = "resonse!!!";
                             //send response...
                             sendResponse(fd, response);
+
+//                            close(listen_sock);
                         } else if (ready_ev[i].events && EPOLLOUT) {
                             std::cout << "receive  write events." << endl;
                         }
@@ -132,9 +136,9 @@ void TcpServer::start() {
 
 }
 
-void TcpServer::sendResponse(int fd, const char *response) const {
+void TcpServer::sendResponse(int fd, char *response) const {
     char sendHeader[4];
-    int dataLen = sizeof(*response);
+    size_t dataLen = strlen(response);
     sendHeader[0] = 0xAA;
     sendHeader[1] = 0xBB;
     sendHeader[2] = ((dataLen << 16) >> 24) & 0xFF;
