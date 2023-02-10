@@ -84,47 +84,18 @@ void TcpServer::start() {
                     int fd = ready_ev[i].data.fd;
                     //handle connect events
                     if (fd == this->listen_sock && (ready_ev[i].events && EPOLLIN)) {
-                        struct sockaddr_in client;
-                        socklen_t len = sizeof(client);
-                        int client_sock = accept(this->listen_sock, (struct sockaddr *) &client, &len);
-                        if (client_sock < 0) {
-                            std::cerr << "fail to create client sock." << std::endl;
-                        }
-                        setNoBlock(client_sock);
-
-                        struct epoll_event ev;
-                        ev.events = EPOLLIN | EPOLLOUT;
-                        ev.data.fd = client_sock;
-
-                        epoll_ctl(this->epollFd, EPOLL_CTL_ADD, client_sock, &ev);
-
+                        handleAccept();
+                        std::cout << "accept new connection,  the fd is:" + fd << std::endl;
                     } else {
                         //handle socket read and write events.
                         if (ready_ev[i].events && EPOLLIN) {
-                            char header[4];
-                            memset(header, '\0', sizeof(header));
-                            int readBytes = read(fd, header, sizeof(header));
-                            if (readBytes < 4) {
-                                continue;
+                            char *requestData = handleRead(fd);
+                            if (requestData != NULL) {
+                                char *response = strcat("resonse", requestData);
+                                //send response...
+                                sendResponse(fd, response);
                             }
 
-                            int magic = ((header[0] & 0xFF) << 8) | (header[1] & 0xFF);
-                            if (magic != MAGIC_NUM) {
-                                std::cout << "wrong magic num:" + magic << endl;
-                                close(listen_sock);
-                            }
-
-                            int len = ((header[2] & 0xFF) << 8) | (header[3] & 0xFF);
-
-                            char data[len];
-                            read(fd, data, len);
-                            printf("the result is :%s\n", data);
-
-                            char *response = "resonse!!!";
-                            //send response...
-                            sendResponse(fd, response);
-
-//                            close(listen_sock);
                         } else if (ready_ev[i].events && EPOLLOUT) {
                             std::cout << "receive  write events." << endl;
                         }
@@ -134,6 +105,43 @@ void TcpServer::start() {
     }
 
 
+}
+
+char *TcpServer::handleRead(int fd) const {
+    char header[4];
+    memset(header, '\0', sizeof(header));
+    int readBytes = read(fd, header, sizeof(header));
+    if (readBytes < 4) {
+        return NULL;
+    }
+
+    int magic = ((header[0] & 0xFF) << 8) | (header[1] & 0xFF);
+    if (magic != MAGIC_NUM) {
+        cout << "wrong magic num:" + magic << endl;
+        close(listen_sock);
+    }
+
+    int len = ((header[2] & 0xFF) << 8) | (header[3] & 0xFF);
+    char data[len];
+    read(fd, data, len);
+    printf("the result is :%s\n", data);
+    return data;
+}
+
+void TcpServer::handleAccept() const {
+    struct sockaddr_in client;
+    socklen_t len = sizeof(client);
+    int client_sock = ::accept(listen_sock, (struct sockaddr *) &client, &len);
+    if (client_sock < 0) {
+        cerr << "fail to create client sock." << endl;
+    }
+    setNoBlock(client_sock);
+
+    struct epoll_event ev;
+    ev.events = EPOLLIN | EPOLLOUT;
+    ev.data.fd = client_sock;
+
+    epoll_ctl(epollFd, EPOLL_CTL_ADD, client_sock, &ev);
 }
 
 void TcpServer::sendResponse(int fd, char *response) const {

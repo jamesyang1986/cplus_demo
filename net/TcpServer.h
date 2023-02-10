@@ -35,6 +35,10 @@ private:
     void setNoBlock(int listen_sock) const;
 
     void sendResponse(int fd,  char *response) const;
+
+    void handleAccept() const;
+
+    char* handleRead(int fd) const;
 };
 
 
