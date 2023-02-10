@@ -76,7 +76,6 @@ void TcpServer::start() {
         int ret = epoll_wait(this->epollFd, ready_ev, maxNum, timeout);
         switch (ret) {
             case -1:
-                break;
             case 0:
                 break;
             default:
@@ -97,6 +96,7 @@ void TcpServer::start() {
                         ev.data.fd = client_sock;
 
                         epoll_ctl(this->epollFd, EPOLL_CTL_ADD, client_sock, &ev);
+
                     } else {
                         //handle socket read and write events.
                         if (ready_ev[i].events && EPOLLIN) {
@@ -108,7 +108,6 @@ void TcpServer::start() {
                             }
 
                             int magic = ((header[0] & 0xFF) << 8) | (header[1] & 0xFF);
-
                             if (magic != MAGIC_NUM) {
                                 std::cout << "wrong magic num:" + magic << endl;
                             }
@@ -119,29 +118,28 @@ void TcpServer::start() {
                             read(fd, data, len);
                             printf("the result is :%s\n", data);
 
-                            char sendHeader[4];
-
                             char *response = "resonse!!!";
-
-                            int dataLen = sizeof(*response);
-
-                            sendHeader[0] = 0xAA;
-                            sendHeader[1] = 0xBB;
-                            sendHeader[2] = ((dataLen << 16) >> 24) & 0xFF;
-                            sendHeader[3] = ((dataLen << 24) >> 24) & 0xFF;;
-
-                            write(fd, sendHeader, 4);
-                            write(fd, response, dataLen);
-
+                            //send response...
+                            sendResponse(fd, response);
                         } else if (ready_ev[i].events && EPOLLOUT) {
                             std::cout << "receive  write events." << endl;
                         }
                     }
-
-
                 }
         }
     }
 
 
+}
+
+void TcpServer::sendResponse(int fd, const char *response) const {
+    char sendHeader[4];
+    int dataLen = sizeof(*response);
+    sendHeader[0] = 0xAA;
+    sendHeader[1] = 0xBB;
+    sendHeader[2] = ((dataLen << 16) >> 24) & 0xFF;
+    sendHeader[3] = ((dataLen << 24) >> 24) & 0xFF;;
+
+    write(fd, sendHeader, 4);
+    write(fd, response, dataLen);
 }

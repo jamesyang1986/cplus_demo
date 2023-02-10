@@ -6,6 +6,7 @@
 
 #include "model/Student.h"
 #include "ds/LinkedList.h"
+#include "net/TcpServer.h"
 
 void testDs();
 
@@ -37,10 +38,15 @@ int main() {
     std::cout << "Hello, cplusplus demo for test!" <<
               std::endl;
 
-    testDs();
-    testClass();
-    testAlg();
-    testList();
+//    testDs();
+//    testClass();
+//    testAlg();
+//    testList();
+
+    TcpServer server(9090);
+    server.start();
+
+
     return 0;
 }
 

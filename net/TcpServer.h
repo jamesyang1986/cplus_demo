@@ -33,6 +33,8 @@ private:
     void epollInit(int listen_sock);
 
     void setNoBlock(int listen_sock) const;
+
+    void sendResponse(int fd, const char *response) const;
 };
 
 
